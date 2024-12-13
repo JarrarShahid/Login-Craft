@@ -5,16 +5,20 @@ class ForgotPasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    final TextEditingController emailController = TextEditingController();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Forgot Password'),
-        backgroundColor: Colors.blue, 
+        backgroundColor: Colors.blue,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 50),
             // Forgot Password Title
             const Text(
               'Forgot your password?',
@@ -38,25 +42,40 @@ class ForgotPasswordScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            // Email TextField
-            SizedBox(
-              width: 300,
-              child: TextField(
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: 'Email Address',
-                  labelStyle: TextStyle(color: Colors.blue.shade700),
-                  hintText: 'Enter your email',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide:
-                        BorderSide(color: Colors.blue.shade300, width: 1.5),
+            // Email TextFormField with validation
+            Form(
+              key: _formKey,
+              child: SizedBox(
+                width: 300,
+                child: TextFormField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: 'Email Address',
+                    labelStyle: TextStyle(color: Colors.blue.shade700),
+                    hintText: 'Enter your email',
+                    prefixIcon: const Icon(Icons.email, color: Colors.blue),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide:
+                          BorderSide(color: Colors.blue.shade300, width: 1.5),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide:
+                          BorderSide(color: Colors.blue.shade700, width: 2.0),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide:
-                        BorderSide(color: Colors.blue.shade700, width: 2.0),
-                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                        .hasMatch(value)) {
+                      return 'Enter a valid email';
+                    }
+                    return null;
+                  },
                 ),
               ),
             ),
@@ -71,20 +90,25 @@ class ForgotPasswordScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: () {
-                  // Handle reset password logic
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Password reset link sent!'),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
+                  if (_formKey.currentState?.validate() ?? false) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Password reset link sent! Please check your email.',
+                        ),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    // Optionally navigate to another screen here
+                  }
                 },
                 child: const Text(
                   'Send Reset Link',
                   style: TextStyle(
-                    color: Colors.white, fontSize: 20,
-                    fontFamily: 'DancingScript', // Use the custom font family
-                    fontStyle: FontStyle.italic, 
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontFamily: 'DancingScript',
+                    fontStyle: FontStyle.italic,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -95,7 +119,6 @@ class ForgotPasswordScreen extends StatelessWidget {
             // Back to Login button
             TextButton(
               onPressed: () {
-                // Navigate back to login screen
                 Navigator.pop(context);
               },
               child: const Text(
@@ -103,8 +126,8 @@ class ForgotPasswordScreen extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.blue,
                   fontSize: 20,
-                  fontFamily: 'DancingScript', // Use the custom font family
-                  fontStyle: FontStyle.italic, 
+                  fontFamily: 'DancingScript',
+                  fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.bold,
                 ),
               ),
